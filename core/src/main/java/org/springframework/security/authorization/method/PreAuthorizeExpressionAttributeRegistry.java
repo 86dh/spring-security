@@ -16,17 +16,17 @@
 
 package org.springframework.security.authorization.method;
 
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.function.Function;
 
 import reactor.util.annotation.NonNull;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AnnotationSynthesizer;
+import org.springframework.security.core.annotation.AnnotationSynthesizers;
 import org.springframework.util.Assert;
 
 /**
@@ -40,17 +40,23 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 
 	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
 
+	private final AnnotationSynthesizer<HandleAuthorizationDenied> handleAuthorizationDeniedSynthesizer = AnnotationSynthesizers
+		.requireUnique(HandleAuthorizationDenied.class);
+
 	private Function<Class<? extends MethodAuthorizationDeniedHandler>, MethodAuthorizationDeniedHandler> handlerResolver;
 
+	private AnnotationSynthesizer<PreAuthorize> preAuthorizeSynthesizer = AnnotationSynthesizers
+		.requireUnique(PreAuthorize.class);
+
 	PreAuthorizeExpressionAttributeRegistry() {
-		this.handlerResolver = (clazz) -> this.defaultHandler;
+		this.handlerResolver = (clazz) -> new ReflectiveMethodAuthorizationDeniedHandler(clazz,
+				PreAuthorizeAuthorizationManager.class);
 	}
 
 	@NonNull
 	@Override
 	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
-		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(specificMethod, targetClass);
+		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(method, targetClass);
 		if (preAuthorize == null) {
 			return ExpressionAttribute.NULL_ATTRIBUTE;
 		}
@@ -60,13 +66,9 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	}
 
 	private MethodAuthorizationDeniedHandler resolveHandler(Method method, Class<?> targetClass) {
-		Function<AnnotatedElement, HandleAuthorizationDenied> lookup = AuthorizationAnnotationUtils
-			.withDefaults(HandleAuthorizationDenied.class);
-		HandleAuthorizationDenied deniedHandler = lookup.apply(method);
-		if (deniedHandler != null) {
-			return this.handlerResolver.apply(deniedHandler.handlerClass());
-		}
-		deniedHandler = lookup.apply(targetClass(method, targetClass));
+		Class<?> targetClassToUse = targetClass(method, targetClass);
+		HandleAuthorizationDenied deniedHandler = this.handleAuthorizationDeniedSynthesizer.synthesize(method,
+				targetClassToUse);
 		if (deniedHandler != null) {
 			return this.handlerResolver.apply(deniedHandler.handlerClass());
 		}
@@ -74,9 +76,8 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	}
 
 	private PreAuthorize findPreAuthorizeAnnotation(Method method, Class<?> targetClass) {
-		Function<AnnotatedElement, PreAuthorize> lookup = findUniqueAnnotation(PreAuthorize.class);
-		PreAuthorize preAuthorize = lookup.apply(method);
-		return (preAuthorize != null) ? preAuthorize : lookup.apply(targetClass(method, targetClass));
+		Class<?> targetClassToUse = targetClass(method, targetClass);
+		return this.preAuthorizeSynthesizer.synthesize(method, targetClassToUse);
 	}
 
 	/**
@@ -87,6 +88,10 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	void setApplicationContext(ApplicationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		this.handlerResolver = (clazz) -> resolveHandler(context, clazz);
+	}
+
+	void setTemplateDefaults(PrePostTemplateDefaults defaults) {
+		this.preAuthorizeSynthesizer = AnnotationSynthesizers.requireUnique(PreAuthorize.class, defaults);
 	}
 
 	private MethodAuthorizationDeniedHandler resolveHandler(ApplicationContext context,
