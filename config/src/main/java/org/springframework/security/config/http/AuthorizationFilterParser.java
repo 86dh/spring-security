@@ -125,8 +125,7 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 		for (Element interceptMessage : interceptMessages) {
 			String accessExpression = interceptMessage.getAttribute(ATT_ACCESS);
 			if (!StringUtils.hasText(accessExpression)) {
-				parserContext.getReaderContext()
-						.error("access attribute cannot be empty or null", interceptMessage);
+				parserContext.getReaderContext().error("access attribute cannot be empty or null", interceptMessage);
 				continue;
 			}
 			BeanDefinitionBuilder authorizationManager = BeanDefinitionBuilder

@@ -144,8 +144,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 			String access = urlElt.getAttribute(ATT_ACCESS);
 			String path = urlElt.getAttribute(ATT_PATTERN);
 			if (!StringUtils.hasText(access)) {
-				parserContext.getReaderContext()
-						.error("access attribute cannot be empty or null", urlElt);
+				parserContext.getReaderContext().error("access attribute cannot be empty or null", urlElt);
 				continue;
 			}
 			String matcherRef = urlElt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_REQUEST_MATCHER_REF);

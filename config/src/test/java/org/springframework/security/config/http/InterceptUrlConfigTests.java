@@ -343,8 +343,8 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void configWhenInterceptUrlMissingAccessThenException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("MissingAccess")).autowire())
-				.withMessageContaining("access attribute cannot be empty or null");
+			.isThrownBy(() -> this.spring.configLocations(this.xml("MissingAccess")).autowire())
+			.withMessageContaining("access attribute cannot be empty or null");
 	}
 
 	/**
@@ -353,8 +353,8 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void configWhenInterceptUrlEmptyAccessThenException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("EmptyAccess")).autowire())
-				.withMessageContaining("access attribute cannot be empty or null");
+			.isThrownBy(() -> this.spring.configLocations(this.xml("EmptyAccess")).autowire())
+			.withMessageContaining("access attribute cannot be empty or null");
 	}
 
 	/**
@@ -362,8 +362,7 @@ public class InterceptUrlConfigTests {
 	 */
 	@Test
 	public void configWhenInterceptUrlValidAccessThenLoads() {
-		assertThatNoException()
-				.isThrownBy(() -> this.spring.configLocations(this.xml("ValidAccess")).autowire());
+		assertThatNoException().isThrownBy(() -> this.spring.configLocations(this.xml("ValidAccess")).autowire());
 	}
 
 	/**
@@ -372,8 +371,8 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void configWhenUseAuthorizationManagerFalseAndMissingAccessThenException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("MissingAccessLegacy")).autowire())
-				.withMessageContaining("access attribute cannot be empty or null");
+			.isThrownBy(() -> this.spring.configLocations(this.xml("MissingAccessLegacy")).autowire())
+			.withMessageContaining("access attribute cannot be empty or null");
 	}
 
 	/**
@@ -382,8 +381,8 @@ public class InterceptUrlConfigTests {
 	@Test
 	public void configWhenUseAuthorizationManagerFalseAndEmptyAccessThenException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("EmptyAccessLegacy")).autowire())
-				.withMessageContaining("access attribute cannot be empty or null");
+			.isThrownBy(() -> this.spring.configLocations(this.xml("EmptyAccessLegacy")).autowire())
+			.withMessageContaining("access attribute cannot be empty or null");
 	}
 
 	private static RequestPostProcessor adminCredentials() {
