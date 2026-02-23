@@ -26,7 +26,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpHeaders
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
@@ -36,7 +35,6 @@ import org.springframework.security.web.FilterChainProxy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 
 /**
  * Tests for customizing security filters.
@@ -119,6 +117,23 @@ class CustomizingFilterTests {
 		}
 
 	}
+
+    @Configuration @EnableWebSecurity
+    open class SecurityConfigDisable {
+
+        // tag::disable[]
+        @Bean
+        open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                httpBasic {
+                    disable()
+                }
+                // ...
+            }
+            return http.build()
+        }
+        // end::disable[]
+    }
 
 	@Configuration
 	@EnableWebSecurity

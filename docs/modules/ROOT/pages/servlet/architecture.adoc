@@ -301,7 +301,7 @@ In this case, remove the call to `httpBasic` since you are constructing `BasicAu
 ====
 In the event that you are unable to reconfigure `HttpSecurity` to not add a certain filter, you can typically disable the Spring Security filter by calling its DSL's `disable` method like so:
 
-include-java::./CustomizingFilterTests[tag=disable,indent=0]
+include-code::./CustomizingFilterTests[tag=disable,indent=0]
 ====
 
 [[servlet-exceptiontranslationfilter]]

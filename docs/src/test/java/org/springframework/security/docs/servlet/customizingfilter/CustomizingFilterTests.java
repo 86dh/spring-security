@@ -142,16 +142,16 @@ public class CustomizingFilterTests {
 	@EnableWebSecurity
 	static class SecurityConfigDisable {
 
+		// tag::disable[]
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			http
-				// tag::disable[]
 				.httpBasic((basic) -> basic.disable());
-				// end::disable[]
 				// ...
 
 			return http.build();
 		}
+		// end::disable[]
 
 	}
 

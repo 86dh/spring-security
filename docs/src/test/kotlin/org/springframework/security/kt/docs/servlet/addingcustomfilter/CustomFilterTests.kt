@@ -84,6 +84,7 @@ class CustomFilterTests {
 	open class UserDetailsConfig {
 		@Bean
 		open fun userDetailsService(): UserDetailsService {
+			@Suppress("DEPRECATION")
 			val user: UserDetails = User.withDefaultPasswordEncoder()
 				.username("user")
 				.password("password")
