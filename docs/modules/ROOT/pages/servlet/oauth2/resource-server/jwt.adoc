@@ -40,17 +40,20 @@ And that's it!
 
 When this property and these dependencies are used, Resource Server will automatically configure itself to validate JWT-encoded Bearer Tokens.
 
-It achieves this through a deterministic startup process:
+It achieves this through a deterministic discovery process it launches at the first request containing a JWT:
 
 1. Query the Provider Configuration or Authorization Server Metadata endpoint for the `jwks_url` property
 2. Query the `jwks_url` endpoint for supported algorithms
 3. Configure the validation strategy to query `jwks_url` for valid public keys of the algorithms found
 4. Configure the validation strategy to validate each JWTs `iss` claim against `https://idp.example.com`.
 
-A consequence of this process is that the authorization server must be up and receiving requests in order for Resource Server to successfully start up.
+One benefit of deferring this process is that Resource Server startup is not coupled to the authorization server's availability.
 
 [NOTE]
-If the authorization server is down when Resource Server queries it (given appropriate timeouts), then startup will fail.
+====
+This deferral is managed by javadoc:org.springframework.security.oauth2.jwt.SupplierJwtDecoder[`SupplierJwtDecoder`].
+Consider wrapping any <<oauth2resourceserver-jwt-decoder,`JwtDecoder` `@Bean`>> you declare in order to preserve this behavior.
+====
 
 === Runtime Expectations
 
@@ -66,7 +69,7 @@ So long as this scheme is indicated, Resource Server will attempt to process the
 
 Given a well-formed JWT, Resource Server will:
 
-1. Validate its signature against a public key obtained from the `jwks_url` endpoint during startup and matched against the JWT
+1. Validate its signature against a public key obtained from the `jwks_url` endpoint during startup or on first request, depending on configuration, and matched against the JWT
 2. Validate the JWT's `exp` and `nbf` timestamps and the JWT's `iss` claim, and
 3. Map each scope to an authority with the prefix `SCOPE_`.
 
@@ -111,7 +114,7 @@ Ultimately, the returned `JwtAuthenticationToken` will be set on the xref:servle
 [[oauth2resourceserver-jwt-jwkseturi]]
 == Specifying the Authorization Server JWK Set Uri Directly
 
-If the authorization server doesn't support any configuration endpoints, or if Resource Server must be able to start up independently from the authorization server, then the `jwk-set-uri` can be supplied as well:
+If the authorization server doesn't support any configuration endpoints, or if Resource Server must be able to initialize independently from the authorization server, then the `jwk-set-uri` can be supplied as well:
 
 [source,yaml]
 ----
